@@ -1,19 +1,19 @@
 package ru.netology.honeybadger;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
 public class Shop {
 
-    private AtomicLong atomicLong = new AtomicLong(0);
+    private LongAdder longAdder = new LongAdder();
 
     public void sumRevenue(List<Integer> list) {
         for (Integer integer : list) {
-            atomicLong.addAndGet(integer);
+            longAdder.add(integer);
         }
     }
 
     public long getRevenue() {
-        return atomicLong.get();
+        return longAdder.sum();
     }
 }

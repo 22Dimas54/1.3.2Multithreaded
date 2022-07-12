@@ -1,32 +1,38 @@
 package ru.netology.honeybadger;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 public class Main {
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private static final int COUNT_SHOPS = 3;
+    private static final int DIGIT_CAPACITY = 1000;
+
     public static void main(String[] args) throws InterruptedException {
-        List<Integer> listShop1 = Arrays.asList(100, 200, 300);
-        List<Integer> listShop2 = Arrays.asList(400, 500, 600);
-        List<Integer> listShop3 = Arrays.asList(700, 800, 900);
-
         Shop shop = new Shop();
+        addTasksInExecutorService(shop);
+        executorService.awaitTermination(COUNT_SHOPS, TimeUnit.SECONDS);
+        System.out.println("Выручка составила:" + shop.getRevenue());
+        executorService.shutdown();
+    }
 
-        Thread threadShop1 = new Thread(null, () -> shop.sumRevenue(listShop1));
-        Thread threadShop2 = new Thread(null, () -> shop.sumRevenue(listShop2));
-        Thread threadShop3 = new Thread(null, () -> shop.sumRevenue(listShop3));
+    private static void addTasksInExecutorService(Shop shop) {
+        for (int i = 0; i < COUNT_SHOPS; i++) {
+            executorService.submit(new Thread(null, () -> shop.sumRevenue(createListInteger())));
+        }
+    }
 
-        threadShop1.start();
-        threadShop2.start();
-        threadShop3.start();
-
-        threadShop1.join();
-        threadShop2.join();
-        threadShop3.join();
-
-        System.out.println("Выручка составила:"+shop.getRevenue());
-
-        threadShop1.interrupt();
-        threadShop2.interrupt();
-        threadShop3.interrupt();
+    private static List<Integer> createListInteger() {
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i < COUNT_SHOPS; i++) {
+            list.add((int) (Math.random() * DIGIT_CAPACITY));
+        }
+        return list;
     }
 }
